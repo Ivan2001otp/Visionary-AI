@@ -1,20 +1,87 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
+	"strconv"
+	"sync"
 
-	"github.com/chromedp/cdproto/cdp"
-	"github.com/chromedp/chromedp"
+	"github.com/gocolly/colly"
 )
 
+func main() {
+
+	const LINK string = "https://www.amazon.in/s?i=electronics&bbn=976419031&rh=n%3A12045104031&ref=mega_elec_s23_3_1_1_5"
+
+	const LINK1 string = "https://www.amazon.in/s?i=electronics&bbn=976419031&rh=n%3A12045104031&ref=sr_pg_"
+
+	var imgList []string
+
+	//wait group.
+	var wg sync.WaitGroup //-> these helps to lock the Critical section during concurrent operation.
+
+	c := colly.NewCollector(
+	// colly.AllowedDomains("amazon.in"),
+	)
+
+	c.OnHTML("div.s-result-item", func(h *colly.HTMLElement) {
+		imgUrl := h.ChildAttr("img.s-image", "src")
+
+		if len(imgUrl) != 0 {
+			imgList = append(imgList, imgUrl)
+		}
+
+	})
+
+	wg.Add(1)
+
+	//use of go-routines that are useful to carry out async tasks.
+	go func() {
+		for i := 1; i < 20; i++ {
+
+			err := c.Visit(LINK1 + strconv.Itoa(i))
+
+			if err != nil {
+				log.Fatal("The error is ", err)
+			}
+
+		}
+		defer wg.Done()
+	}()
+
+	wg.Wait()
+
+	for i, val := range imgList {
+		fmt.Println("The img link is ", val, "<-", i)
+	}
+}
+
+/*
+
+Web scraping using ChromeDp - headless browser.
 func main() {
 
 	const LINK = "https://www.amazon.in/s?i=electronics&bbn=976419031&rh=n%3A12045104031&ref=mega_elec_s23_3_1_1_5"
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
 	)
+
+	//scrolling code in JS
+	scrollingScript := `
+	// scroll down the page 8 times
+	const scrolls = 30
+	let scrollCount = 0
+
+	// scroll down and then wait for 0.5s
+	const scrollInterval = setInterval(() => {
+	  window.scrollTo(0, document.body.scrollHeight)
+	  scrollCount++
+
+	  if (scrollCount === numScrolls) {
+	   clearInterval(scrollInterval)
+	  }
+	}, 500)
+ `
 
 	defer cancel()
 
@@ -27,6 +94,8 @@ func main() {
 		chromedp.Navigate(LINK),
 		// chromedp.Sleep(3*time.Second),
 		//.puis-card-container
+
+		chromedp.Evaluate(scrollingScript, nil),
 		chromedp.WaitVisible("div.s-result-item"),
 
 		//.s-main-slot s-result-list s-search-results
@@ -55,3 +124,4 @@ func main() {
 
 	}
 }
+*/
