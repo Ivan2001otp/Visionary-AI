@@ -3,11 +3,27 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gocolly/colly"
 )
+
+var UserAgentStrings = []string{
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.67 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/103.0.0.0 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Opera/93.0.4585.67 Safari/537.36",
+}
+
+func randomUserAgent() string {
+	rand.Seed(time.Now().UnixNano())
+	var i int = rand.Intn(len(UserAgentStrings))
+	return UserAgentStrings[i]
+}
 
 func main() {
 
@@ -24,6 +40,10 @@ func main() {
 	// colly.AllowedDomains("amazon.in"),
 	)
 
+	c.OnRequest(func(r *colly.Request) {
+		// r.Headers.Set("User-Agent", randomUserAgent()) //->this is done to prevent the browser letting scraper to block.
+	})
+
 	c.OnHTML("div.s-result-item", func(h *colly.HTMLElement) {
 		imgUrl := h.ChildAttr("img.s-image", "src")
 
@@ -37,7 +57,7 @@ func main() {
 
 	//use of go-routines that are useful to carry out async tasks.
 	go func() {
-		for i := 1; i < 20; i++ {
+		for i := 1; i < 10; i++ {
 
 			err := c.Visit(LINK1 + strconv.Itoa(i))
 
