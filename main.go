@@ -4,14 +4,23 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	// "github.com/Ivan2001otp/Visionary-AI/Model"
 	"github.com/Ivan2001otp/Visionary-AI/Retailer"
+	scrap "github.com/Ivan2001otp/Visionary-AI/Service/Scrap"
 	"github.com/gocolly/colly"
 )
+
+var UserAgentStrings = []string{
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.67 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/103.0.0.0 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Opera/93.0.4585.67 Safari/537.36",
+}
 
 type Product struct {
 	productName      string
@@ -21,14 +30,6 @@ type Product struct {
 	globalRating     string
 	productPrice     string
 	productRetailers string
-}
-
-var UserAgentStrings = []string{
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.67 Safari/537.36",
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/103.0.0.0 Safari/537.36",
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Opera/93.0.4585.67 Safari/537.36",
 }
 
 func randomUserAgent() string {
@@ -109,12 +110,10 @@ func main() {
 		price := h.ChildText("span.a-price > span.a-offscreen")            //price.
 		globalRating_ := h.ChildText("a.a-link-normal > span.a-size-base") //global rating
 
-		//a.a-link-normal > span.a-price-whole
 		if !isEmpty(price) {
 			productClone.productPrice = priceStringTrimmer(price)
 		}
 
-		// p := h.Attr("span.a-size-base-plus a-color-base a-text-normal")
 		if len(imgUrl) != 0 {
 			// imgList = append(imgList, imgUrl)
 			productClone.productImg = imgUrl
@@ -125,12 +124,10 @@ func main() {
 			if !strings.HasPrefix(hrefLink, "https://www.amazon.in") {
 				hrefLink = "https://www.amazon.in" + hrefLink
 			}
-			// href = append(href, hrefLink)
 			productClone.productDetailUrl = hrefLink
 		}
 
 		if !isEmpty(pname) {
-			// pname = append(pname, p)
 			productClone.productName = pname
 		}
 
@@ -139,11 +136,6 @@ func main() {
 		}
 		if !isEmpty(globalRating_) {
 
-			// gRating, err := strconv.Atoi(globalRating_)
-
-			// if err != nil {
-			// 	log.Fatal("Something went wrong while parsing GlobalRating from String to int32:", err)
-			// }
 			productClone.globalRating = globalRating_
 		}
 		productClone.productRetailers = Retailer.TelevisionRetailers()
@@ -156,6 +148,7 @@ func main() {
 	wg.Add(1)
 	startTime := time.Now()
 	//use of go-routines that are useful to carry out async tasks.
+	/*This goroutine service fetches the tele info
 	go func() {
 
 		for i := 1; i < 2; i++ {
@@ -169,14 +162,22 @@ func main() {
 		}
 
 		defer wg.Done()
+	}()*/
+
+	//this go routine fetches smartphone info.
+	go func() {
+
+		defer wg.Done()
+		res, err := scrap.SmartPhoneScrapper()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(len(res))
 	}()
 
 	wg.Wait()
 
-	// for i, val := range imgList {
-	// 	fmt.Println("The img link is ", val, "<-", i)
-
-	// }
 	endTime := time.Now()
 	fmt.Println("The time taken is ", endTime.Sub(startTime))
 
