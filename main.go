@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	// "github.com/Ivan2001otp/Visionary-AI/Model"
+	model "github.com/Ivan2001otp/Visionary-AI/Model"
 	"github.com/Ivan2001otp/Visionary-AI/Retailer"
 	scrap "github.com/Ivan2001otp/Visionary-AI/Service/Scrap"
 	"github.com/gocolly/colly"
@@ -22,14 +22,24 @@ var UserAgentStrings = []string{
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Opera/93.0.4585.67 Safari/537.36",
 }
 
-type Product struct {
-	productName      string
-	productImg       string
-	productDetailUrl string
-	productRating    string
-	globalRating     string
-	productPrice     string
-	productRetailers string
+//	type Product struct {
+//		productName      string
+//		productImg       string
+//		productDetailUrl string
+//		productRating    string
+//		globalRating     string
+//		productPrice     string
+//		productRetailers string
+//	}
+type LapTop struct {
+	ProductName      string
+	ProductType      string
+	ProductImg       string
+	ProductDetailUrl string
+	ProductRating    string
+	GlobalRating     string
+	ProductPrice     string
+	ProductRetailers string
 }
 
 func randomUserAgent() string {
@@ -64,8 +74,8 @@ func isEmpty(str string) bool {
 	return len(str) == 0
 }
 
-func isProductEmpty(product Product) bool {
-	if isEmpty(product.productName) && isEmpty(product.productDetailUrl) && isEmpty(product.productRating) && isEmpty(product.productImg) {
+func isProductEmpty(product model.Product) bool {
+	if isEmpty(product.ProductName) && isEmpty(product.ProductDetailUrl) && isEmpty(product.ProductRating) && isEmpty(product.ProductImg) {
 		return true
 	}
 	return false
@@ -80,7 +90,9 @@ func main() {
 	// var imgList []string
 	// var href []string
 	// var pname []string
-	var productList []Product
+	var productList []model.Product
+
+	var laptopList_ []scrap.LapTop
 
 	//wait group.
 	var wg sync.WaitGroup //-> these helps to lock the Critical section during concurrent operation.
@@ -101,7 +113,7 @@ func main() {
 		// p := h.Response
 		// i += 1
 		// fmt.Println(i, "->", p.StatusCode)
-		var productClone Product
+		var productClone model.Product
 
 		imgUrl := h.ChildAttr("img.s-image", "src")                        //img
 		hrefLink := h.ChildAttr("a.a-link-normal", "href")                 //href
@@ -111,12 +123,12 @@ func main() {
 		globalRating_ := h.ChildText("a.a-link-normal > span.a-size-base") //global rating
 
 		if !isEmpty(price) {
-			productClone.productPrice = priceStringTrimmer(price)
+			productClone.ProductPrice = priceStringTrimmer(price)
 		}
 
 		if len(imgUrl) != 0 {
 			// imgList = append(imgList, imgUrl)
-			productClone.productImg = imgUrl
+			productClone.ProductImg = imgUrl
 		}
 
 		if len(hrefLink) != 0 {
@@ -124,21 +136,21 @@ func main() {
 			if !strings.HasPrefix(hrefLink, "https://www.amazon.in") {
 				hrefLink = "https://www.amazon.in" + hrefLink
 			}
-			productClone.productDetailUrl = hrefLink
+			productClone.ProductDetailUrl = hrefLink
 		}
 
 		if !isEmpty(pname) {
-			productClone.productName = pname
+			productClone.ProductName = pname
 		}
 
 		if !isEmpty(rating) {
-			productClone.productRating = rating
+			productClone.ProductRating = rating
 		}
 		if !isEmpty(globalRating_) {
 
-			productClone.globalRating = globalRating_
+			productClone.GlobalRating = globalRating_
 		}
-		productClone.productRetailers = Retailer.TelevisionRetailers()
+		productClone.ProductRetailers = Retailer.TelevisionRetailers()
 		if !isProductEmpty(productClone) {
 			productList = append(productList, productClone)
 		}
@@ -176,19 +188,32 @@ func main() {
 		fmt.Println(len(res))
 	}()
 
+	/* scraps the info about laptops
+	go func() {
+		defer wg.Done()
+
+		laptopList_, err := scrap.LapTopScraper()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(laptopList_)
+	}()*/
+
 	wg.Wait()
 
 	endTime := time.Now()
 	fmt.Println("The time taken is ", endTime.Sub(startTime))
 
-	for i, val := range productList {
-		fmt.Println(i+1, "rating->", val.productRating)
-		fmt.Println(i+1, "name->", val.productName)
+	for i, val := range laptopList_ {
+		fmt.Println(i+1, "rating->", val.ProductRating)
+		fmt.Println(i+1, "name->", val.ProductName)
 		// fmt.Println(i+1, "href->", val.productDetailUrl)
-		fmt.Println(i+1, "price->", val.productPrice)
-		fmt.Println(i+1, "imgUrl->", val.productImg)
-		fmt.Println(i+1, "globalRating->", val.globalRating)
-		fmt.Println(i+1, "retailer->", val.productRetailers)
+		fmt.Println(i+1, "price->", val.ProductPrice)
+		fmt.Println(i+1, "imgUrl->", val.ProductImg)
+		fmt.Println(i+1, "globalRating->", val.GlobalRating)
+		fmt.Println(i+1, "retailer->", val.ProductRetailers)
 		fmt.Println()
 	}
 

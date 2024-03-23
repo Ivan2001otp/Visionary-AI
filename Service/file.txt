@@ -1,6 +1,6 @@
 other categories.
 television -> done.
-gaming/nongaming-laptops
-5G/4G-smartphones
-smart watches
+gaming/nongaming-laptops->https://www.amazon.in/s?i=computers&rh=n%3A7198569031&fs=true&page=2&ref=sr_pg_1
+5G/4G-smartphones-->done
+smart watches -> https://www.amazon.in/smart-watch/s?k=smart+watch&page=2&ref=sr_pg_1
 

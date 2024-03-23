@@ -11,6 +11,7 @@ import (
 
 type SmartPhone struct {
 	ProductName      string
+	ProductType      string
 	ProductImg       string
 	ProductDetailUrl string
 	ProductRating    string
@@ -71,6 +72,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 		item.ProductRating = rating
 		item.ProductRetailers = Retailer.SmartPhoneRetailers(pname)
 		item.ProductPrice = priceStringTrimmer(price)
+		item.ProductType = "smartphone"
 
 		fmt.Println("img url is ->", imgUrl)
 		// fmt.Println("hrefLink is ->", detailLink)
@@ -98,6 +100,8 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 	if anyErr != nil {
 		return nil, anyErr
 	}
+
+	fmt.Println("the len is -", len(productList))
 
 	return productList, nil
 }
