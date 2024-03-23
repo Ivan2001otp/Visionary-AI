@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Ivan2001otp/Visionary-AI/Retailer"
 	"github.com/gocolly/colly"
@@ -44,7 +45,14 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 	const TARGET_LINK = "https://www.amazon.in/s?k=smartphones&i=electronics&rh=n%3A1389401031&page=2&ref=sr_pg_"
 	var anyErr error
 
-	c := colly.NewCollector()
+	c := colly.NewCollector(
+		colly.Async(true),
+	)
+
+	c.Limit(&colly.LimitRule{
+		Delay:       1 * time.Second,
+		RandomDelay: 500 * time.Millisecond,
+	})
 
 	c.OnRequest(func(r *colly.Request) {})
 	c.OnResponse(func(r *colly.Response) {
@@ -91,7 +99,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 	})
 
 	//we can iterate through all pages by looping.
-	for i := 1; i < 2; i++ {
+	for i := 1; i <= 5; i++ {
 		c.Visit(TARGET_LINK + strconv.Itoa(i))
 	}
 	c.Wait()

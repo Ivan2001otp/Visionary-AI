@@ -92,8 +92,6 @@ func main() {
 	// var pname []string
 	var productList []model.Product
 
-	var laptopList_ []scrap.LapTop
-
 	//wait group.
 	var wg sync.WaitGroup //-> these helps to lock the Critical section during concurrent operation.
 
@@ -188,25 +186,26 @@ func main() {
 		fmt.Println(len(res))
 	}()
 
-	/* scraps the info about laptops
-	go func() {
-		defer wg.Done()
+	// scraps the info about laptops
+	/*
+		go func() {
+			defer wg.Done()
+			productList, err := scrap.LapTopScraper()
 
-		laptopList_, err := scrap.LapTopScraper()
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(laptopList_)
-	}()*/
+			fmt.Println("The response has ->", len(productList))
+		}()
+	*/
 
 	wg.Wait()
 
 	endTime := time.Now()
 	fmt.Println("The time taken is ", endTime.Sub(startTime))
 
-	for i, val := range laptopList_ {
+	for i, val := range productList {
 		fmt.Println(i+1, "rating->", val.ProductRating)
 		fmt.Println(i+1, "name->", val.ProductName)
 		// fmt.Println(i+1, "href->", val.productDetailUrl)
