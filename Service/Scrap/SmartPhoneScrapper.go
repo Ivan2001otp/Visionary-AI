@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Ivan2001otp/Visionary-AI/Retailer"
+	util "github.com/Ivan2001otp/Visionary-AI/Util"
 	"github.com/gocolly/colly"
 )
 
@@ -21,23 +22,9 @@ type SmartPhone struct {
 	ProductRetailers string
 }
 
-func priceStringTrimmer(str string) string {
-	const rupaySymbol = '₹'
-	var temp string = ""
-	var rupayFreq int = 0
-	for _, char := range str {
-		if char == rupaySymbol && rupayFreq != 1 {
-			rupayFreq++
-			temp = temp + string(char) //append first ruppee symbol
-		} else if char != rupaySymbol && rupayFreq == 1 {
-			temp = temp + string(char)
-		} else if char == rupaySymbol && rupayFreq == 1 {
-			break
-		}
-	}
-
-	return temp
-}
+/*
+Note : Do not alter the LINK variables... otherwise entire code will break;
+*/
 
 func SmartPhoneScrapper() ([]SmartPhone, error) {
 	fmt.Println("visiting smartphone ")
@@ -47,6 +34,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 
 	c := colly.NewCollector(
 		colly.Async(true),
+		colly.UserAgent(util.RandomUserAgent()),
 	)
 
 	c.Limit(&colly.LimitRule{
@@ -79,7 +67,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 		item.ProductName = pname
 		item.ProductRating = rating
 		item.ProductRetailers = Retailer.SmartPhoneRetailers(pname)
-		item.ProductPrice = priceStringTrimmer(price)
+		item.ProductPrice = util.PriceStringTrimmer(price)
 		item.ProductType = "smartphone"
 
 		fmt.Println("img url is ->", imgUrl)
@@ -88,7 +76,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 		fmt.Println("rating is ->", rating)
 		fmt.Println("Retailer->", Retailer.SmartPhoneRetailers(pname))
 		fmt.Println("global rating is ->", gRating)
-		fmt.Println("price is ->", priceStringTrimmer(price))
+		fmt.Println("price is ->", util.PriceStringTrimmer(price))
 
 		productList = append(productList, item)
 		fmt.Println()

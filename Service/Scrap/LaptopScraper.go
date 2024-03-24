@@ -11,6 +11,9 @@ import (
 	"github.com/gocolly/colly"
 )
 
+/*
+Note : Do not alter the LINK variables... otherwise entire code will break;
+*/
 func LapTopScraper() ([]model.Product, error) {
 	util.Print("start..")
 	var laptopList []model.Product
@@ -48,7 +51,7 @@ func LapTopScraper() ([]model.Product, error) {
 		// var i_count int = 0
 
 		util.Print("image ->" + imgUrl)
-		// util.Print("name -> " + pname)
+		util.Print("name -> " + pname)
 		// util.Print(rating_)
 
 		// util.Print(gRating_)
@@ -64,6 +67,7 @@ func LapTopScraper() ([]model.Product, error) {
 			laptop.ProductDetailUrl = detailPageUrl
 			laptop.ProductPrice = price_
 			laptop.ProductImg = imgUrl
+			laptop.CategoryType = "laptop"
 
 			laptopList = append(laptopList, laptop)
 		}
@@ -97,6 +101,8 @@ func LapTopScraper() ([]model.Product, error) {
 				}
 			}
 
+		} else {
+			fmt.Println("The error was ,", err)
 		}
 	})
 

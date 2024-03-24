@@ -8,4 +8,5 @@ type Product struct {
 	GlobalRating     string
 	ProductPrice     string
 	ProductRetailers string
+	CategoryType     string
 }

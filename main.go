@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+
+	// "strconv"
 	"strings"
 	"sync"
 	"time"
@@ -145,22 +147,24 @@ func main() {
 
 	wg.Add(1)
 	startTime := time.Now()
-	//use of go-routines that are useful to carry out async tasks.
-	/*This goroutine service fetches the tele info
-	go func() {
+	/*
+		//use of go-routines that are useful to carry out async tasks.
+		// This goroutine service fetches the tele info
+		go func() {
 
-		for i := 1; i < 2; i++ {
+			for i := 1; i < 2; i++ {
 
-			err := c.Visit(LINK1 + strconv.Itoa(i))
+				err := c.Visit(LINK1 + strconv.Itoa(i))
 
-			if err != nil {
-				log.Fatal("The error is ", err)
+				if err != nil {
+					log.Fatal("The error is ", err)
+				}
+
 			}
 
-		}
-
-		defer wg.Done()
-	}()*/
+			defer wg.Done()
+		}()
+	*/
 
 	//this go routine fetches smartphone info.
 	go func() {

@@ -37,7 +37,7 @@ func IsProductEmpty(product model.Product) bool {
 	return false
 }
 
-func priceStringTrimmer(str string) string {
+func PriceStringTrimmer(str string) string {
 	const rupaySymbol = '₹'
 	var temp string = ""
 	var rupayFreq int = 0
