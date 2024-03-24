@@ -6,6 +6,7 @@ import (
 
 func WatchRetailer(key string) string {
 	const defaultRetailer string = "https://www.myntra.com/smart-watches"
+
 	var retailerSites = map[string]string{
 		"fastrack":   "https://www.fastrack.in/shop/watches",
 		"noise":      "https://www.gonoise.com/collections/smart-watches",
