@@ -47,7 +47,6 @@ func (p Product) SaveToMongo() (bool, error) {
 	p.Id = status.InsertedID.(primitive.ObjectID)
 
 	fmt.Println("Saved")
-	mongoClient.Disconnect(context.TODO())
 
 	return true, nil
 }

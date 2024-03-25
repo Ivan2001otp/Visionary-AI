@@ -158,6 +158,14 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		for i, item := range res {
+			result, err := item.SaveToMongo()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Inserted ", i+1, "->", result)
+		}
 		fmt.Println("the len is ", len(res))
 	}()
 

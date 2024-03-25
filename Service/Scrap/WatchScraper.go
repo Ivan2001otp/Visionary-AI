@@ -26,7 +26,7 @@ func WatchScraper() ([]model.Product, error) {
 	)
 
 	c.Limit(&colly.LimitRule{
-		Delay:       1 * time.Second,
+		Delay:       2 * time.Second,
 		RandomDelay: 1 * time.Second,
 	})
 
@@ -46,8 +46,11 @@ func WatchScraper() ([]model.Product, error) {
 					fmt.Println("Retrying the cycle ", retryCount)
 
 					//later we can apply here for loop to scrap from prevpage to next following pages.
-					c.Visit(LINK + strconv.Itoa(prevPageHolder))
-					c.Wait()
+					for i := prevPageHolder; i <= 2; i++ {
+
+						c.Visit(LINK + strconv.Itoa(prevPageHolder))
+
+					}
 				}
 			} else if err == colly.ErrRobotsTxtBlocked {
 				fmt.Println("Violated Robots.Txt file...")
