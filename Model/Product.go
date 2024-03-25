@@ -7,6 +7,7 @@ import (
 
 	constant "github.com/Ivan2001otp/Visionary-AI/Constant"
 	config "github.com/Ivan2001otp/Visionary-AI/Service/Database"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -22,14 +23,40 @@ type Product struct {
 	CategoryType     string             `json:"categorytype" bson:"categorytype"`
 }
 
+/*
+this is an interface that has abstract methods
+to perform CRUD operations.
+*/
 type iDbMethod interface {
 	SaveToMongo(product Product) (bool, error)
 	DeleteByProductId(id string) (bool, error)
 	UpdateByProductId(id string) (bool, error)
 	fetchAllProduct() ([]Product, error)
+	DeleteAllFromMongo() (bool, error)
 }
 
 // implementing the interface...
+func DeleteAllFromMongo() (int, error) {
+	//this deletes all the records from mongo..
+	fmt.Println("Initiating delete all function")
+	mongoClient, err := config.MongoDbInstanceProvider()
+
+	if err != nil {
+		log.Fatal("Error while deleting all product->", err)
+	}
+
+	productCollection := mongoClient.Database(constant.DATABASE_NAME).Collection(constant.COLLECTION)
+
+	status, err := productCollection.DeleteMany(context.TODO(), bson.M{})
+
+	if err != nil {
+		return -1, err
+	}
+
+	return int(status.DeletedCount), nil
+
+}
+
 func (p Product) SaveToMongo() (bool, error) {
 	fmt.Println("The product saved is ", p)
 

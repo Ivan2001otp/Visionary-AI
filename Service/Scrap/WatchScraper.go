@@ -46,9 +46,9 @@ func WatchScraper() ([]model.Product, error) {
 					fmt.Println("Retrying the cycle ", retryCount)
 
 					//later we can apply here for loop to scrap from prevpage to next following pages.
-					for i := prevPageHolder; i <= 2; i++ {
+					for i := prevPageHolder + 1; i <= prevPageHolder+2; i++ {
 
-						c.Visit(LINK + strconv.Itoa(prevPageHolder))
+						c.Visit(LINK + strconv.Itoa(i))
 
 					}
 				}

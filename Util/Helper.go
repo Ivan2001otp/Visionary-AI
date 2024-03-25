@@ -30,8 +30,8 @@ func Print(str string) {
 	fmt.Println(str)
 }
 
-func IsProductEmpty(product model.Product) bool {
-	if IsEmpty(product.ProductName) && IsEmpty(product.ProductDetailUrl) && IsEmpty(product.ProductRating) && IsEmpty(product.ProductImg) {
+func IsProductInfoEmpty(product model.Product) bool {
+	if IsEmpty(product.ProductName) && IsEmpty(product.ProductDetailUrl) && IsEmpty(product.ProductRating) && IsEmpty(product.ProductImg) && IsEmpty(product.GlobalRating) && IsEmpty(product.ProductPrice) {
 		return true
 	}
 	return false

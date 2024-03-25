@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	model "github.com/Ivan2001otp/Visionary-AI/Model"
 	"github.com/Ivan2001otp/Visionary-AI/Retailer"
 	util "github.com/Ivan2001otp/Visionary-AI/Util"
 	"github.com/gocolly/colly"
@@ -26,10 +27,11 @@ type SmartPhone struct {
 Note : Do not alter the LINK variables... otherwise entire code will break;
 */
 
-func SmartPhoneScrapper() ([]SmartPhone, error) {
+func SmartPhoneScrapper() ([]model.Product, error) {
 	fmt.Println("visiting smartphone ")
-	var productList []SmartPhone
-	const TARGET_LINK = "https://www.amazon.in/s?k=smartphones&i=electronics&rh=n%3A1389401031&page=2&ref=sr_pg_"
+	var productList []model.Product
+	// const TARGET_LINK = "https://www.amazon.in/s?k=smartphones&i=electronics&rh=n%3A1389401031&page=2&ref=sr_pg_"
+	const TARGET_LINK = "https://www.amazon.in/s?k=smartphones&i=electronics&rh=n%3A1389401031&ref=sr_pg_"
 	var anyErr error
 
 	c := colly.NewCollector(
@@ -48,7 +50,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 
 	})
 	c.OnHTML("div.s-card-container", func(jrColly *colly.HTMLElement) {
-		var item SmartPhone
+		var item model.Product
 
 		imgUrl := jrColly.ChildAttr("img.s-image", "src")                  //image of smartphone
 		detailLink := jrColly.ChildAttr("a.a-link-normal", "href")         //detail link
@@ -61,6 +63,7 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 			detailLink = "https://amazon.in" + detailLink
 		}
 
+		fmt.Println("smartphone name ->", pname)
 		item.GlobalRating = gRating
 		item.ProductImg = imgUrl
 		item.ProductDetailUrl = detailLink
@@ -68,18 +71,19 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 		item.ProductRating = rating
 		item.ProductRetailers = Retailer.SmartPhoneRetailers(pname)
 		item.ProductPrice = util.PriceStringTrimmer(price)
-		item.ProductType = "smartphone"
+		item.CategoryType = "smartphone"
 
-		fmt.Println("img url is ->", imgUrl)
+		if util.IsProductInfoEmpty(item) {
+			productList = append(productList, item)
+		}
+
 		// fmt.Println("hrefLink is ->", detailLink)
-		fmt.Println("productname is ->", pname)
-		fmt.Println("rating is ->", rating)
-		fmt.Println("Retailer->", Retailer.SmartPhoneRetailers(pname))
-		fmt.Println("global rating is ->", gRating)
-		fmt.Println("price is ->", util.PriceStringTrimmer(price))
+		// fmt.Println("productname is ->", pname)
+		// fmt.Println("rating is ->", rating)
+		// fmt.Println("Retailer->", Retailer.SmartPhoneRetailers(pname))
+		// fmt.Println("global rating is ->", gRating)
+		// fmt.Println("price is ->", util.PriceStringTrimmer(price))
 
-		productList = append(productList, item)
-		fmt.Println()
 	})
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("Error while smartphone scraping->", err)
@@ -87,9 +91,10 @@ func SmartPhoneScrapper() ([]SmartPhone, error) {
 	})
 
 	//we can iterate through all pages by looping.
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= 2; i++ {
 		c.Visit(TARGET_LINK + strconv.Itoa(i))
 	}
+
 	c.Wait()
 	fmt.Println("final post visit smartphone ")
 
