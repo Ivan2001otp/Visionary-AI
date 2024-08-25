@@ -1,2 +1,3 @@
 # Visionary-AI
-My College Major project
+Golang project where it scraps ecommerce data from Amazon
+
