@@ -1,2 +1,2 @@
 # Visionary-AI
-My College Major project
+Golang project that scrapes data from Amazon
